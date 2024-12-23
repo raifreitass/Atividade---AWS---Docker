@@ -6,66 +6,154 @@ Este projeto foi desenvolvido como parte de uma atividade prática de DevSecOps,
 - Configuração do serviço EFS da AWS para armazenar arquivos estáticos do container WordPress.
 - Configuração de um Load Balancer AWS para a aplicação WordPress.
 
-# Etapa 1: Criar VPC
+## Etapa 1: Criar VPC
 Configurações essenciais:
 - CIDR Block: Escolha um bloco de IP adequado, como 10.0.0.0/16.
 - Sub-redes públicas e privadas: Defina sub-redes para segmentar o tráfego.
-- Internet Gateway: Associe um Internet Gateway à VPC para acesso externo.
-- NAT Gateway: Configure se precisar de acesso à internet para sub-redes privadas.
-- Grupos de segurança: Defina regras de segurança para portas específicas como HTTP e SSH.
-
-  # Etapa 2: Criar RDS para o WordPress
-Passo a passo para criar o RDS:
-
-1. Acesse o console AWS e procure pelo serviço RDS.
-2. Clique em "Create database".
-3. Escolha o banco de dados (Engine type).
-4. No campo Templates, selecione Free Tier.
-
-Configure a instância:
-- Tipo de instância: Escolha um modelo leve como db.t2.micro ou db.t3.micro (2 vCPUs, 1 GiB RAM).
-- Armazenamento: Selecione gp2 com 20 GiB alocados.
-- Defina um nome para sua instância RDS.
-- Crie as credenciais do banco de dados (username e senha). Guarde essas informações, pois serão necessárias ao configurar o container do WordPress.
-
-Em "Connectivity", configure:
-- Security Group: Crie um grupo de segurança configurado para o RDS.
-- Availability Zone: Selecione a mesma zona de disponibilidade (AZ) onde está localizada a sua instância EC2.
-- Public Access: Ative o acesso público para facilitar a comunicação.
-- Na seção "Additional configuration", insira o nome inicial do banco de dados (Initial database name), que também será usado na criação do container do WordPress.
-
-Confirme as configurações clicando em "Create database". Detalhes Importantes:
-
-- Versão do MySQL: Certifique-se de escolher uma compatível com o WordPress.
-- Porta do banco de dados: Use o padrão 3306.
-
-
-# Etapa 3: Criar a EC2
-1. Instalação e Configuração do Docker
-Criar uma Instância EC2 na AWS:
-
-- Inicie uma instância EC2 no Amazon Web Services.
-- Escolha uma imagem (AMI) Linux, como Ubuntu ou Amazon Linux 2.
-
- Security Group da EC2: 
-- SSH (22): Permite acesso remoto de qualquer lugar (0.0.0.0/0).
-- HTTP (80): Habilita o acesso público à aplicação (0.0.0.0/0).
+- Internet Gateway: Configure também um gateway de internet.
+- NAT Gateway: Ative um gateway NAT em cada zona.
  
+Finalize a criação da VPC.
 
-Crie um arquivo user_data.sh no console da AWS com o seguinte conteúdo:
 
-````
-bash
-Copiar código
-#!/bin/bash
-apt-get update
-apt-get install -y docker.io
-systemctl enable docker
-systemctl start docker
+## Etapa 2: Configurando Regras de Acesso (Grupos de Segurança)
+Grupo Público, entradas permitidas:
+
+> HTTP (porta 80) de qualquer origem (0.0.0.0/0).
+> 
+> HTTPS (porta 443) de qualquer origem (0.0.0.0/0).
+>
+> SSH (porta 22) de qualquer origem (0.0.0.0/0).
+
+
+Saídas permitidas:
+>Todo o tráfego, sem restrição de portas ou protocolos.
+
+
+
+
+Grupo Privado, entradas permitidas:
+  
+> MySQL (porta 3306) de qualquer origem.
+>
+> HTTP (porta 80) e HTTPS (porta 443) apenas do grupo público.
+>
+>  SSH (porta 22) de qualquer origem.
+>
+> NFS (porta 2049) de qualquer origem.
+
+Saídas permitidas:
+> Todo o tráfego liberado.
+
+
+## Etapa 3: Criar RDS para o WordPress
+1. No console AWS, procure pelo serviço RDS e clique em "Criar banco de dados".
+2. Escolha as seguintes configurações básicas:
+   
+- Tipo de mecanismo: MySQL.
+- Modelo: Camada gratuita (Free Tier).
+- Tipo de instância: db.t2.micro ou db.t3.micro (2 vCPUs, 1 GiB RAM).
+- Armazenamento: Utilize gp2 com um mínimo de 20 GiB.
+  
+3. Configure as credenciais:
+- Crie um nome de usuário e senha para o banco. Anote essas informações, pois serão usadas mais tarde no container do WordPress.
+  
+4. Em Conectividade:
+- Grupo de segurança: Vincule o grupo privado que foi configurado anteriormente.
+- Zona de disponibilidade (AZ): Escolha a mesma AZ onde está localizada uma de suas instâncias EC2.
+- Acesso público: Desative esta opção para manter o banco de dados protegido contra acessos externos diretos.
+
+5. Em Configuração adicional:
+- Insira o nome inicial do banco (por exemplo, wordpress_db), que será usado na configuração do container.
+- Adicione tags, se necessário, para identificar o recurso.
+- Confirme clicando em "Criar banco de dados".
+
+
+## Etapa 4: Configuração do Sistema de Arquivos (EFS)
+1. No console AWS, acesse o serviço EFS (Elastic File System) e inicie a criação do sistema:
+- Dê um nome claro para facilitar a identificação no projeto.
+- Selecione as sub-redes privadas configuradas na VPC para integrar o EFS.
+  
+2. Finalize a criação e configure o ponto de montagem:
+- Escolha a opção recomendada para sistemas Linux.
+- Anote as instruções de montagem, pois serão usadas no script de inicialização.
+- Certifique-se de que o EFS esteja associado ao grupo de segurança privado para garantir segurança e compatibilidade com os outros serviços da arquitetura.
+
+
+## Etapa 5: Instâncias EC2
+1. Crie duas instâncias EC2, uma em cada zona de disponibilidade:
+- Utilize a AMI "Amazon Linux 2023".
+- Escolha o tipo de instância t2.micro.
+- Gere e salve uma chave SSH.
+  
+2. Configure a rede:
+- Selecione a VPC e uma sub-rede privada.
+- Desative o IP público automático.
+- Vincule ao grupo de segurança privado.
+
+3. Adicione o seguinte script de inicialização no user_data:
+
+``` #!/bin/bash 
+ 
+sudo yum update -y 
+sudo yum install docker -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ec2-user
+newgrp docker
+sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+sudo mkdir /home/ec2-user/wordpress
+cat <<EOF > /home/ec2-user/wordpress/docker-compose.yml
+services:
+ 
+  wordpress:
+    image: wordpress
+    restart: always
+    ports:
+      - 80:80
+    environment:
+      WORDPRESS_DB_HOST: <aqui coloque o endpoint do seu RDS>:3306
+      WORDPRESS_DB_USER: <seu user>
+      WORDPRESS_DB_PASSWORD: <sua senha>
+      WORDPRESS_DB_NAME: <aqui coloque aquele nome que colocamos nos detalhes adicionais do RDS(revise o passo 4, tópico 11)>
+    volumes:
+      - /mnt/efs:/var/www/html
+EOF
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-082b0295d71cc0635.efs.us-east-1.amazonaws.com:/ /mnt/efs
+docker-compose -f /home/ec2-user/wordpress/docker-compose.yml up -d
 
 ``````
 
-Durante a inicialização da instância, o AWS irá executar este script automaticamente para instalar o Docker. Depois, acesse a instância via SSH.
+
+## Etapa 6 : Configurando o Load Balancer
+Escolha o tipo "Classic Load Balancer".
+
+1. Configure:
+- Utilize a VPC e as sub-redes públicas.
+- Selecione o grupo de segurança público.
+- Adicione as instâncias EC2 criadas.
+
+  
+2. Configure o monitoramento de saúde:
+- Protocolo: HTTP.
+- Porta: 80.
+- Caminho: /wp-admin/install.php.
+
+  
+## Etapa 7: Criando um Grupo de Auto Scaling
+
+1. Configure o Auto Scaling para replicar automaticamente suas instâncias EC2:
+- Use a mesma configuração das EC2 criadas anteriormente, exceto pelas sub-redes (selecione sub-redes privadas).
+- Vincule ao Load Balancer configurado.
+
+2. Finalize a criação do grupo.
+
+
+## Etapa 8: Acessando o WordPress
+
+- Copie o DNS do Load Balancer e cole no navegador para acessar o painel de configuração do WordPress.
+
 
 
 
