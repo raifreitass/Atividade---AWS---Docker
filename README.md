@@ -6,12 +6,18 @@ Este projeto foi desenvolvido como parte de uma atividade prática de DevSecOps,
 - Configuração do serviço EFS da AWS para armazenar arquivos estáticos do container WordPress.
 - Configuração de um Load Balancer AWS para a aplicação WordPress.
 
+![image](https://github.com/user-attachments/assets/19ce08ac-4f0a-47cf-8baa-c4242a28b1b3)
+
+
 ## Etapa 1: Criar VPC
 Configurações essenciais:
 - CIDR Block: Escolha um bloco de IP adequado, como 10.0.0.0/16.
 - Sub-redes públicas e privadas: Defina sub-redes para segmentar o tráfego.
 - Internet Gateway: Configure também um gateway de internet.
 - NAT Gateway: Ative um gateway NAT em cada zona.
+
+![image](https://github.com/user-attachments/assets/479a8f66-ef9d-4d89-accf-333130a1304e)
+
  
 Finalize a criação da VPC.
 
@@ -46,30 +52,7 @@ Saídas permitidas:
 > Todo o tráfego liberado.
 
 
-## Etapa 3: Criar RDS para o WordPress
-1. No console AWS, procure pelo serviço RDS e clique em "Criar banco de dados".
-2. Escolha as seguintes configurações básicas:
-   
-- Tipo de mecanismo: MySQL.
-- Modelo: Camada gratuita (Free Tier).
-- Tipo de instância: db.t2.micro ou db.t3.micro (2 vCPUs, 1 GiB RAM).
-- Armazenamento: Utilize gp2 com um mínimo de 20 GiB.
-  
-3. Configure as credenciais:
-- Crie um nome de usuário e senha para o banco. Anote essas informações, pois serão usadas mais tarde no container do WordPress.
-  
-4. Em Conectividade:
-- Grupo de segurança: Vincule o grupo privado que foi configurado anteriormente.
-- Zona de disponibilidade (AZ): Escolha a mesma AZ onde está localizada uma de suas instâncias EC2.
-- Acesso público: Desative esta opção para manter o banco de dados protegido contra acessos externos diretos.
-
-5. Em Configuração adicional:
-- Insira o nome inicial do banco (por exemplo, wordpress_db), que será usado na configuração do container.
-- Adicione tags, se necessário, para identificar o recurso.
-- Confirme clicando em "Criar banco de dados".
-
-
-## Etapa 4: Configuração do Sistema de Arquivos (EFS)
+## Etapa 3: Configuração do Sistema de Arquivos (EFS)
 1. No console AWS, acesse o serviço EFS (Elastic File System) e inicie a criação do sistema:
 - Dê um nome claro para facilitar a identificação no projeto.
 - Selecione as sub-redes privadas configuradas na VPC para integrar o EFS.
@@ -80,7 +63,42 @@ Saídas permitidas:
 - Certifique-se de que o EFS esteja associado ao grupo de segurança privado para garantir segurança e compatibilidade com os outros serviços da arquitetura.
 
 
-## Etapa 5: Instâncias EC2
+## Etapa 4: Criar uma Sub-Rede para o RDS
+É necessário configurar uma sub-rede específica para o banco de dados. Essa sub-rede privada isola o RDS de acessos externos, garantindo que ele seja acessado apenas por recursos internos, como as instâncias EC2.
+
+1. Vá em "Grupo de Sub-redes" e inicie a criação.
+- Dê um nome para a sua sub-rede.
+- Selecione sua vpc criada anteriormente.
+  
+Agora, escolha a zona de disponibiliade e as sub-redes privadas da seguinte maneira:
+![Captura de tela 2024-12-23 163553](https://github.com/user-attachments/assets/c85e54f2-aff7-404f-a007-2f5554903b9d)
+
+
+## Etapa 5: Criar RDS para o WordPress
+1. No console AWS, procure pelo serviço RDS e clique em "Criar banco de dados".
+2. Escolha as seguintes configurações básicas:
+   
+- Tipo de mecanismo: MySQL.
+- Modelo: Camada gratuita (Free Tier).
+- Tipo de instância: db.t3.micro.
+- Armazenamento: Configuração padrão.
+  
+3. Configure as credenciais:
+- Crie um nome de usuário e senha para o banco. Anote essas informações, pois serão usadas mais tarde no container do WordPress.
+  
+4. Em Conectividade:
+- Grupo de segurança: Vincule o grupo privado que foi configurado anteriormente.
+- Zona de disponibilidade (AZ): Escolha a mesma AZ onde está localizada uma de suas instâncias EC2.
+- Selecione a sub-rede criada para o RDS.
+- Acesso público: Desative esta opção para manter o banco de dados protegido contra acessos externos diretos.
+
+5. Em Configuração adicional:
+- Insira o nome inicial do banco (por exemplo, wordpress_db), que será usado na configuração do container.
+- Adicione tags, se necessário, para identificar o recurso.
+- Confirme clicando em "Criar banco de dados".
+
+
+## Etapa 6: Instâncias EC2
 1. Crie duas instâncias EC2, uma em cada zona de disponibilidade:
 - Utilize a AMI "Amazon Linux 2023".
 - Escolha o tipo de instância t2.micro.
@@ -126,7 +144,7 @@ docker-compose -f /home/ec2-user/wordpress/docker-compose.yml up -d
 ``````
 
 
-## Etapa 6 : Configurando o Load Balancer
+## Etapa 7: Configurando o Load Balancer
 Escolha o tipo "Classic Load Balancer".
 
 1. Configure:
@@ -140,8 +158,11 @@ Escolha o tipo "Classic Load Balancer".
 - Porta: 80.
 - Caminho: /wp-admin/install.php.
 
+![image](https://github.com/user-attachments/assets/aa482105-6dcc-4ea9-86f1-6e5c132789bd)
+
+
   
-## Etapa 7: Criando um Grupo de Auto Scaling
+## Etapa 8: Criando um Grupo de Auto Scaling
 
 1. Configure o Auto Scaling para replicar automaticamente suas instâncias EC2:
 - Use a mesma configuração das EC2 criadas anteriormente, exceto pelas sub-redes (selecione sub-redes privadas).
@@ -150,9 +171,12 @@ Escolha o tipo "Classic Load Balancer".
 2. Finalize a criação do grupo.
 
 
-## Etapa 8: Acessando o WordPress
+## Etapa 9: Acessando o WordPress
 
 - Copie o DNS do Load Balancer e cole no navegador para acessar o painel de configuração do WordPress.
+
+![Captura de tela 2024-12-23 035851](https://github.com/user-attachments/assets/961fff8f-4db5-4eea-9a87-8f5ae67e3bf4)
+
 
 
 
