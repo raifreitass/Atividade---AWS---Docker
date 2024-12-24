@@ -54,7 +54,7 @@ Saídas permitidas:
 
 ## Etapa 3: Configuração do Sistema de Arquivos (EFS)
 1. No console AWS, acesse o serviço EFS (Elastic File System) e inicie a criação do sistema:
-- Dê um nome claro para facilitar a identificação no projeto.
+- Dê um nome a EFS.
 - Selecione as sub-redes privadas configuradas na VPC para integrar o EFS.
   
 2. Finalize a criação e configure o ponto de montagem:
