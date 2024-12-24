@@ -56,9 +56,10 @@ Saídas permitidas:
 1. No console AWS, acesse o serviço EFS (Elastic File System) e inicie a criação do sistema:
 - Dê um nome a EFS.
 - Selecione as sub-redes privadas configuradas na VPC para integrar o EFS.
-  
-2. Finalize a criação e configure o ponto de montagem:
-- Escolha a opção recomendada para sistemas Linux.
+
+  ![image](https://github.com/user-attachments/assets/2476391c-fbdf-4ae4-9dad-a65241b727ce)
+
+2. Finalize a criação:
 - Anote as instruções de montagem, pois serão usadas no script de inicialização.
 - Certifique-se de que o EFS esteja associado ao grupo de segurança privado para garantir segurança e compatibilidade com os outros serviços da arquitetura.
 
