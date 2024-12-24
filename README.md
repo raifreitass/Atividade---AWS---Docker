@@ -132,10 +132,10 @@ services:
     ports:
       - 80:80
     environment:
-      WORDPRESS_DB_HOST: <aqui coloque o endpoint do seu RDS>:3306
-      WORDPRESS_DB_USER: <seu user>
-      WORDPRESS_DB_PASSWORD: <sua senha>
-      WORDPRESS_DB_NAME: <aqui coloque aquele nome que colocamos nos detalhes adicionais do RDS(revise o passo 4, tópico 11)>
+      WORDPRESS_DB_HOST: <endpoint do seu RDS>:3306
+      WORDPRESS_DB_USER: <usuário>
+      WORDPRESS_DB_PASSWORD: <senha>
+      WORDPRESS_DB_NAME: <nome do banco de dados)>
     volumes:
       - /mnt/efs:/var/www/html
 EOF
