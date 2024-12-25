@@ -8,6 +8,12 @@ Este projeto foi desenvolvido como parte de uma atividade prática de DevSecOps,
 
 ![image](https://github.com/user-attachments/assets/19ce08ac-4f0a-47cf-8baa-c4242a28b1b3)
 
+# Tecnologias Utilizadas:
+
+1. AWS Console
+2. Amazon Linux
+3. Shell Script (Bash)
+4. Docker
 
 ## Etapa 1: Criar VPC
 Configurações essenciais:
@@ -100,7 +106,7 @@ Agora, escolha a zona de disponibiliade e as sub-redes privadas da seguinte mane
 
 
 ## Etapa 6: Instâncias EC2
-1. Crie duas instâncias EC2, uma em cada zona de disponibilidade:
+1. Crie duas instâncias EC2 privadas, uma em cada zona de disponibilidade:
 - Utilize a AMI "Amazon Linux 2023".
 - Escolha o tipo de instância t2.micro.
 - Gere e salve uma chave SSH.
