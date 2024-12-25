@@ -100,7 +100,7 @@ Agora, escolha a zona de disponibiliade e as sub-redes privadas da seguinte mane
 - Acesso público: Desative esta opção para manter o banco de dados protegido contra acessos externos diretos.
 
 5. Em Configuração adicional:
-- Insira o nome inicial do banco (por exemplo, wordpress_db), que será usado na configuração do container.
+- Insira o nome inicial do banco que será usado no script.
 - Adicione tags, se necessário, para identificar o recurso.
 - Confirme clicando em "Criar banco de dados".
 
