@@ -1,4 +1,4 @@
-# Atividade---AWS---Docker
+# Projeto AWS - Compass UOL
 Este projeto foi desenvolvido como parte de uma atividade prática de DevSecOps, integrando Docker e serviços da AWS.  A atividade envolve o deploy de uma aplicação WordPress com os seguintes requisitos:
 
 - Container para a aplicação.
