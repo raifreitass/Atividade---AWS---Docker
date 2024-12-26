@@ -167,7 +167,8 @@ Escolha o tipo "Classic Load Balancer".
 - Porta: 80.
 - Caminho: /wp-admin/install.php.
 
-![image](https://github.com/user-attachments/assets/aa482105-6dcc-4ea9-86f1-6e5c132789bd)
+![image](https://github.com/user-attachments/assets/34d9ab93-af0c-4801-af82-0a3bad75c977)
+
 
 
   
