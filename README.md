@@ -80,7 +80,7 @@ Saídas permitidas:
 - Selecione sua vpc criada anteriormente.
   
 Agora, escolha a zona de disponibiliade e as sub-redes privadas da seguinte maneira:
-![Captura de tela 2024-12-23 163553](https://github.com/user-attachments/assets/c85e54f2-aff7-404f-a007-2f5554903b9d)
+![image](https://github.com/user-attachments/assets/b3743b48-18f2-48d0-b7e7-6b045e983515)
 
 
 ## Etapa 5: Criar RDS para o WordPress
