@@ -63,7 +63,8 @@ Saídas permitidas:
 - Dê um nome a EFS.
 - Selecione as sub-redes privadas configuradas na VPC para integrar o EFS.
 
-  ![image](https://github.com/user-attachments/assets/2476391c-fbdf-4ae4-9dad-a65241b727ce)
+![image](https://github.com/user-attachments/assets/c602f52c-7001-4313-b8ed-864e39463385)
+
 
 2. Finalize a criação:
 - Anote as instruções de montagem, pois serão usadas no script de inicialização.
