@@ -22,7 +22,8 @@ Configurações essenciais:
 - Internet Gateway: Configure também um gateway de internet.
 - NAT Gateway: Ative um gateway NAT em cada zona.
 
-![image](https://github.com/user-attachments/assets/479a8f66-ef9d-4d89-accf-333130a1304e)
+![image](https://github.com/user-attachments/assets/c5beb910-c06e-4187-9e04-af609d647e02)
+
 
  
 Finalize a criação da VPC.
