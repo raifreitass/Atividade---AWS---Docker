@@ -66,8 +66,6 @@ Saídas permitidas:
 
 2. Finalize a criação:
 - Anote as instruções de montagem, pois serão usadas no script de inicialização.
-- Certifique-se de que o EFS esteja associado ao grupo de segurança privado para garantir segurança e compatibilidade com os outros serviços da arquitetura.
-
 
 ## Etapa 4: Criar uma Sub-Rede para o RDS
 É necessário configurar uma sub-rede específica para o banco de dados. Essa sub-rede privada isola o RDS de acessos externos, garantindo que ele seja acessado apenas por recursos internos, como as instâncias EC2.
